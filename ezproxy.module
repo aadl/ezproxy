@@ -1,4 +1,11 @@
 <?php
+// $Id$
+
+/**
+ * @file
+ * Provides integration between Drupal and EZProxy
+ */
+ 
 /**
  * Implementatin of hook_menu
  */
@@ -58,7 +65,7 @@ function ezproxy_perm() {
  * ::external=http://yourdrupallib.org/ezproxyauth,post=ezuser=^u&ezpass=^p,valid=+OK
  */
 function ezproxy_auth() {
-  $result = db_query("SELECT uid FROM users WHERE name = '%s' AND pass = md5('%s') LIMIT 1", $_REQUEST['ezuser'], $_REQUEST['ezpass']);
+  $result = db_query_range("SELECT uid FROM {users} WHERE name = '%s' AND pass = md5('%s')", $_REQUEST['ezuser'], $_REQUEST['ezpass']);
   $row = db_fetch_object($result);
   if ($row->uid) {
     $user = user_load($row->uid);
@@ -83,14 +90,14 @@ function ezproxy_auth() {
  */
 function ezproxy_login() {
   global $user;
-  global $ezproxy_url;
-  $ezproxy_url = $_REQUEST['url'];
+  global $_ezproxy_url;
+  $_ezproxy_url = $_REQUEST['url'];
   $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
   $ezproxy_username = variable_get('ezproxy_username', 'someuser');
   $ezproxy_password = variable_get('ezproxy_password', 'somepass');
   
   if ($user->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
-    header("Location:$ezproxy_host:2048/login?user=$ezproxy_username&pass=$ezproxy_password&url=$ezproxy_url\n\n");
+    header("Location:$ezproxy_host:2048/login?user=$ezproxy_username&pass=$ezproxy_password&url=$_ezproxy_url\n\n");
   }
   elseif ($user->uid && !user_access('access ezproxy content')) { //user is already logged in but does NOT have permission to access ezproxy content
     drupal_set_message(t('You do not have permission to access ez-proxy content'), 'error');
@@ -106,11 +113,11 @@ function ezproxy_login() {
  * Adds a url field to the form
  */
 function ezproxy_form_alter(&$form, $form_state, $form_id) {
-  global $ezproxy_url;
+  global $_ezproxy_url;
   if ($form_id == 'user_login') {
     $form['ezproxy_url'] = array(
       '#type' => 'hidden',
-      '#value' => $ezproxy_url,
+      '#value' => $_ezproxy_url,
     );
     $form['#submit'][] = 'ezproxy_login_submit';
   }
@@ -121,13 +128,13 @@ function ezproxy_form_alter(&$form, $form_state, $form_id) {
  */
 function ezproxy_user($op, &$edit, &$account, $category = NULL) {
   if ($op == 'login' && !empty($edit['ezproxy_url'])) {
-    $ezproxy_url = $edit['ezproxy_url'];
+    $_ezproxy_url = $edit['ezproxy_url'];
     $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
     $ezproxy_username = variable_get('ezproxy_username', 'someuser');
     $ezproxy_password = variable_get('ezproxy_password', 'somepass');
 
     if ($account->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
-      header("Location:$ezproxy_host:2048/login?user=$ezproxy_username&pass=$ezproxy_password&url=$ezproxy_url\n\n");
+      header("Location:$ezproxy_host:2048/login?user=$ezproxy_username&pass=$ezproxy_password&url=$_ezproxy_url\n\n");
       die();
     }
     else {

@@ -3,6 +3,11 @@
 // $Id$
 
 /**
+ * @file
+ * Install EZProzy module
+ */
+ 
+/**
  * Implementation of hook_install()
  *
  */
