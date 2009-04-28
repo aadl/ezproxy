@@ -2,50 +2,44 @@
 /**
  * Implementatin of hook_menu
  */
-function ezproxy_menu($may_cache) {
+function ezproxy_menu() {
   $items = array();
-  if (!$may_cache) {
-    $items[] = array(
-      'path' => 'ezproxyauth',
-      'title' => 'EZProxy Auth',
-      'callback' => 'ezproxy_auth',
-      'access' => user_access('access content'),
-      'type' => MENU_CALLBACK
-    );
+  
+  $items['ezproxyauth'] = array(
+    'title' => 'EZProxy Auth',
+    'page callback' => 'ezproxy_auth',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
 
-    $items[] = array(
-      'path' => 'ezproxylogin',
-      'title' => 'EZProxy Login',
-      'callback' => 'ezproxy_login',
-      'access' => user_access('access content'),
-      'type' => MENU_CALLBACK
-    );
+  $items['ezproxylogin'] = array(
+    'title' => 'EZProxy Login',
+    'page callback' => 'ezproxy_login',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
 
-    $items[] = array(
-      'path' => 'ezproxylogout',
-      'title' => 'EZProxy Logout',
-      'callback' => 'ezproxy_logout',
-      'access' => user_access('access content'),
-      'type' => MENU_CALLBACK
-    );
-    
-    $items[] = array(
-      'path' => 'admin/settings/ezproxy',
-      'title' => 'EZProxy Settings',
-      'description' => t('Settings for EZProxy'),
-      'callback' => 'drupal_get_form',
-      'callback arguments' => 'ezproxy_settings',
-      'access' => user_access('administer ezproxy'),
-    );
+  $items['ezproxylogout'] = array(
+    'title' => 'EZProxy Logout',
+    'page callback' => 'ezproxy_logout',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  
+  $items['admin/settings/ezproxy'] = array(
+    'title' => 'EZProxy Settings',
+    'description' => 'Settings for EZProxy',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ezproxy_settings'),
+    'access arguments' => array('administer ezproxy'),
+  );
 
-    $items[] = array(
-      'path' => 'admin/settings/ezproxy/list',
-      'title' => 'EZProxy Database list',
-      'description' => t('List of available databases available through EZProxy'),
-      'callback' => 'ezproxy_database_list',
-      'access' => user_access('administer ezproxy'),
-    );
-  }
+  $items['admin/settings/ezproxy/list'] = array(
+    'title' => 'EZProxy Database list',
+    'description' => 'List of available databases available through EZProxy',
+    'page callback' => 'ezproxy_database_list',
+    'access arguments' => array('administer ezpr oxy'),
+  );
   return $items;
 }
 
@@ -111,14 +105,14 @@ function ezproxy_login() {
  *  Implementation of hook form_alter()
  * Adds a url field to the form
  */
-function ezproxy_form_alter($form_id, &$form) {
+function ezproxy_form_alter(&$form, $form_state, $form_id) {
   global $ezproxy_url;
   if ($form_id == 'user_login') {
     $form['ezproxy_url'] = array(
       '#type' => 'hidden',
       '#value' => $ezproxy_url,
     );
-    $form['#submit']['ezproxy_login_submit'] = array();
+    $form['#submit'][] = 'ezproxy_login_submit';
   }
 }
 
@@ -137,7 +131,7 @@ function ezproxy_user($op, &$edit, &$account, $category = NULL) {
       die();
     }
     else {
-      drupal_set_message("You do not have permission to access EZprozy content");
+      drupal_set_message(t("You do not have permission to access EZProzy content"));
       drupal_access_denied();
       exit();
     }
@@ -188,4 +182,3 @@ function ezproxy_logout() {
   header("Location:$ezproxy_host:2048/logout\n\n");
   die();
 }
-?>
