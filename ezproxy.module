@@ -1,0 +1,191 @@
+<?php
+/**
+ * Implementatin of hook_menu
+ */
+function ezproxy_menu($may_cache) {
+  $items = array();
+  if (!$may_cache) {
+    $items[] = array(
+      'path' => 'ezproxyauth',
+      'title' => 'EZProxy Auth',
+      'callback' => 'ezproxy_auth',
+      'access' => user_access('access content'),
+      'type' => MENU_CALLBACK
+    );
+
+    $items[] = array(
+      'path' => 'ezproxylogin',
+      'title' => 'EZProxy Login',
+      'callback' => 'ezproxy_login',
+      'access' => user_access('access content'),
+      'type' => MENU_CALLBACK
+    );
+
+    $items[] = array(
+      'path' => 'ezproxylogout',
+      'title' => 'EZProxy Logout',
+      'callback' => 'ezproxy_logout',
+      'access' => user_access('access content'),
+      'type' => MENU_CALLBACK
+    );
+    
+    $items[] = array(
+      'path' => 'admin/settings/ezproxy',
+      'title' => 'EZProxy Settings',
+      'description' => t('Settings for EZProxy'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => 'ezproxy_settings',
+      'access' => user_access('administer ezproxy'),
+    );
+
+    $items[] = array(
+      'path' => 'admin/settings/ezproxy/list',
+      'title' => 'EZProxy Database list',
+      'description' => t('List of available databases available through EZProxy'),
+      'callback' => 'ezproxy_database_list',
+      'access' => user_access('administer ezproxy'),
+    );
+  }
+  return $items;
+}
+
+/**
+ * Implementatin of hook_perm
+ */
+function ezproxy_perm() {
+  return array('access ezproxy content', 'administer ezproxy');
+}
+
+/**
+ * Used with the external plugin method
+ * see http://www.oclc.org/support/documentation/ezproxy/usr/external.htm
+ *
+ * To use this method copy this line into the users.txt file (part of the ezproxy package)
+ * ::external=http://yourdrupallib.org/ezproxyauth,post=ezuser=^u&ezpass=^p,valid=+OK
+ */
+function ezproxy_auth() {
+  $result = db_query("SELECT uid FROM users WHERE name = '%s' AND pass = md5('%s') LIMIT 1", $_REQUEST['ezuser'], $_REQUEST['ezpass']);
+  $row = db_fetch_object($result);
+  if ($row->uid) {
+    $user = user_load($row->uid);
+    if (user_access('access ezproxy content', $user)) {
+      echo "+OK";
+    }
+    else {
+      echo "+FAIL";
+    }
+  }
+  else {
+    echo "+FAIL";
+  }
+}
+
+/**
+ * Used with the CGI authentication method
+ * see http://www.oclc.org/support/documentation/ezproxy/usr/cgi2.htm
+ *
+ * To use this method copy this line into the users.txt file (part of the ezproxy package)
+ * someuser:somepass:cgi=http://yourdrupal.ib.org/ezproxylogin? 
+ */
+function ezproxy_login() {
+  global $user;
+  global $ezproxy_url;
+  $ezproxy_url = $_REQUEST['url'];
+  $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
+  $ezproxy_username = variable_get('ezproxy_username', 'someuser');
+  $ezproxy_password = variable_get('ezproxy_password', 'somepass');
+  
+  if ($user->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
+    header("Location:$ezproxy_host:2048/login?user=$ezproxy_username&pass=$ezproxy_password&url=$ezproxy_url\n\n");
+  }
+  elseif ($user->uid && !user_access('access ezproxy content')) { //user is already logged in but does NOT have permission to access ezproxy content
+    drupal_set_message(t('You do not have permission to access ez-proxy content'), 'error');
+    return '';
+  }
+  else {
+    return drupal_get_form('user_login');
+  }
+}
+
+/**
+ *  Implementation of hook form_alter()
+ * Adds a url field to the form
+ */
+function ezproxy_form_alter($form_id, &$form) {
+  global $ezproxy_url;
+  if ($form_id == 'user_login') {
+    $form['ezproxy_url'] = array(
+      '#type' => 'hidden',
+      '#value' => $ezproxy_url,
+    );
+    $form['#submit']['ezproxy_login_submit'] = array();
+  }
+}
+
+/**
+ * Implementation of hook_user
+ */
+function ezproxy_user($op, &$edit, &$account, $category = NULL) {
+  if ($op == 'login' && !empty($edit['ezproxy_url'])) {
+    $ezproxy_url = $edit['ezproxy_url'];
+    $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
+    $ezproxy_username = variable_get('ezproxy_username', 'someuser');
+    $ezproxy_password = variable_get('ezproxy_password', 'somepass');
+
+    if ($account->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
+      header("Location:$ezproxy_host:2048/login?user=$ezproxy_username&pass=$ezproxy_password&url=$ezproxy_url\n\n");
+      die();
+    }
+    else {
+      drupal_set_message("You do not have permission to access EZprozy content");
+      drupal_access_denied();
+      exit();
+    }
+  }
+}
+
+/**
+ * Settings for EZproxy
+ */
+function ezproxy_settings() {
+  $form = array();
+  
+  $form['ezproxy_host'] = array(
+    '#type' => 'textfield',
+    '#title' => t('EZproxy host'),
+    '#default_value' => variable_get('ezproxy_host', 'http://ezproxy.example.com'),
+    '#description' => t('The hostname of your exproxy server'),
+  );
+  $form['ezproxy_username'] = array(
+    '#type' => 'textfield',
+    '#title' => t('EZproxy username'),
+    '#default_value' => variable_get('ezproxy_username', 'someuser'),
+    '#description' => t('NOTE this is only used with the CGI authentication method.'),
+  );
+  $form['ezproxy_password'] = array(
+    '#type' => 'textfield',
+    '#title' => t('EZproxy password'),
+    '#default_value' => variable_get('ezproxy_password', 'somepass'),
+    '#description' => t('NOTE this is only used with the CGI authentication method'),
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Redirects to the standard EZprozy screen
+ */
+function ezproxy_database_list() {
+  $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
+  header("Location:$ezproxy_host:2048/menu\n\n");
+  die();
+}
+
+/**
+ * Redirects to the standard EZprozy logout screen
+ */
+function ezproxy_logout() {
+  $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
+  header("Location:$ezproxy_host:2048/logout\n\n");
+  die();
+}
+?>
