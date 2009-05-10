@@ -14,7 +14,7 @@ function ezproxy_menu() {
   
   $items['ezproxyauth'] = array(
     'title' => 'EZProxy Auth',
-    'page callback' => 'ezproxy_auth',
+    'page callback' => 'ezproxy_authenticate',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK
   );
@@ -45,7 +45,7 @@ function ezproxy_menu() {
     'title' => 'EZProxy Database list',
     'description' => 'List of available databases available through EZProxy',
     'page callback' => 'ezproxy_database_list',
-    'access arguments' => array('administer ezpr oxy'),
+    'access arguments' => array('administer ezproxy'),
   );
   return $items;
 }
@@ -64,8 +64,8 @@ function ezproxy_perm() {
  * To use this method copy this line into the users.txt file (part of the ezproxy package)
  * ::external=http://yourdrupallib.org/ezproxyauth,post=ezuser=^u&ezpass=^p,valid=+OK
  */
-function ezproxy_auth() {
-  $result = db_query_range("SELECT uid FROM {users} WHERE name = '%s' AND pass = md5('%s')", $_REQUEST['ezuser'], $_REQUEST['ezpass']);
+function ezproxy_authenticate() {
+  $result = db_query("SELECT uid FROM {users} WHERE name = '%s' AND pass = md5('%s') AND status = 1", $_REQUEST['ezuser'], $_REQUEST['ezpass']);
   $row = db_fetch_object($result);
   if ($row->uid) {
     $user = user_load($row->uid);
@@ -93,11 +93,12 @@ function ezproxy_login() {
   global $_ezproxy_url;
   $_ezproxy_url = $_REQUEST['url'];
   $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
+  $ezproxy_port = variable_get('ezproxy_port', '2048');
   $ezproxy_username = variable_get('ezproxy_username', 'someuser');
   $ezproxy_password = variable_get('ezproxy_password', 'somepass');
   
   if ($user->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
-    header("Location:$ezproxy_host:2048/login?user=$ezproxy_username&pass=$ezproxy_password&url=$_ezproxy_url\n\n");
+    header("Location:$ezproxy_host:$ezproxy_port/login?user=$ezproxy_username&pass=$ezproxy_password&url=$_ezproxy_url\n\n");
   }
   elseif ($user->uid && !user_access('access ezproxy content')) { //user is already logged in but does NOT have permission to access ezproxy content
     drupal_set_message(t('You do not have permission to access ez-proxy content'), 'error');
@@ -130,15 +131,16 @@ function ezproxy_user($op, &$edit, &$account, $category = NULL) {
   if ($op == 'login' && !empty($edit['ezproxy_url'])) {
     $_ezproxy_url = $edit['ezproxy_url'];
     $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
+    $ezproxy_port = variable_get('ezproxy_port', '2048');
     $ezproxy_username = variable_get('ezproxy_username', 'someuser');
     $ezproxy_password = variable_get('ezproxy_password', 'somepass');
 
     if ($account->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
-      header("Location:$ezproxy_host:2048/login?user=$ezproxy_username&pass=$ezproxy_password&url=$_ezproxy_url\n\n");
+      header("Location:$ezproxy_host:$ezproxy_port/login?user=$ezproxy_username&pass=$ezproxy_password&url=$_ezproxy_url\n\n");
       die();
     }
     else {
-      drupal_set_message(t("You do not have permission to access EZProzy content"));
+      drupal_set_message(t("You do not have permission to access EZProxy content"));
       drupal_access_denied();
       exit();
     }
@@ -157,6 +159,12 @@ function ezproxy_settings() {
     '#default_value' => variable_get('ezproxy_host', 'http://ezproxy.example.com'),
     '#description' => t('The hostname of your exproxy server'),
   );
+  $form['ezproxy_port'] = array(
+    '#type' => 'textfield',
+    '#title' => t('EZproxy port'),
+    '#default_value' => variable_get('ezproxy_port', '2048'),
+    '#description' => t('The port used by the exproxy server'),
+  );
   $form['ezproxy_username'] = array(
     '#type' => 'textfield',
     '#title' => t('EZproxy username'),
@@ -173,19 +181,21 @@ function ezproxy_settings() {
 }
 
 /**
- * Redirects to the standard EZprozy screen
+ * Redirects to the standard EZproxy screen
  */
 function ezproxy_database_list() {
   $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
-  header("Location:$ezproxy_host:2048/menu\n\n");
+  $ezproxy_port = variable_get('ezproxy_port', '2048');
+  header("Location:$ezproxy_host:$ezproxy_port/menu\n\n");
   die();
 }
 
 /**
- * Redirects to the standard EZprozy logout screen
+ * Redirects to the standard EZproxy logout screen
  */
 function ezproxy_logout() {
   $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
-  header("Location:$ezproxy_host:2048/logout\n\n");
+  $ezproxy_port = variable_get('ezproxy_port', '2048');
+  header("Location:$ezproxy_host:$ezproxy_port/logout\n\n");
   die();
 }

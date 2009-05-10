@@ -43,7 +43,7 @@ External script authentication
    and 'somepass' with a username and password that Drupal will use for
    its communication.  Also replace example.com with the domain name for your Drupal site.
   
-   ::external=http://example.com/ezproxyauth,post=someuser=^u&somepass=^p,valid=+OK
+   ::external=http://example.com/ezproxyauth,post=ezuser=^u&ezpass=^p,valid=+OK
 
 2. Go to the configuration page for ezproxy (admin >> site configuration >> ezproxy) and enter the hostname
    for your ezproxy server.  If you have this installed in the same machine as Drupal this is probably the
