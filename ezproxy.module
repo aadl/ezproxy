@@ -6,6 +6,8 @@
  * Provides integration between Drupal and EZProxy
  */
  
+ include_once('ezproxyticket.php');
+ 
 /**
  * Implementatin of hook_menu
  */
@@ -18,7 +20,6 @@ function ezproxy_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK
   );
-
   $items['ezproxylogin'] = array(
     'title' => 'EZProxy Login',
     'page callback' => 'ezproxy_login',
@@ -177,6 +178,12 @@ function ezproxy_settings() {
     '#default_value' => variable_get('ezproxy_password', 'somepass'),
     '#description' => t('NOTE this is only used with the CGI authentication method'),
   );
+  $form['ezproxy_ticket_secret'] = array(
+    '#type' => 'textfield',
+    '#title' => t('EZproxy secret (Ticket authentication only)'),
+    '#default_value' => variable_get('ezproxy_ticket_secret', 'somesecret'),
+    '#description' => t('NOTE this is only used with the ticket authentication method'),
+  );
   return system_settings_form($form);
 }
 
@@ -198,4 +205,32 @@ function ezproxy_logout() {
   $ezproxy_port = variable_get('ezproxy_port', '2048');
   header("Location:$ezproxy_host:$ezproxy_port/logout\n\n");
   die();
+}
+
+
+/**
+ * Redirects to the EZproxy screen using a ticket
+ * This is used in the same way as the l() function
+ * except that an ezproxy URL is returned, with the appropriate 
+ * ticket attached.
+ *
+ * @param $text the Text to use in the link
+ * @param $path the URL of the database to connect to
+ * @param the options array that you would usually pass into the l() function
+ * @return Decorated URL to use with ezproxy authentication.
+ */
+function ezproxy_l($text, $path, $options = array()) {
+  global $user;
+  
+  if (!user_access('access ezproxy content')) {
+    return;
+  }
+  
+  $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
+  $ezproxy_port = variable_get('ezproxy_port', '2048');
+  $ezproxy_ticket_secret = variable_get('ezproxy_ticket_secret', '');
+  
+  $ezproxy = new EZproxyTicket("$ezproxy_host:$ezproxy_port", $ezproxy_ticket_secret, $user->name);
+
+  return l($text, $ezproxy->url($path), $options);
 }

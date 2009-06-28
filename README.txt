@@ -18,7 +18,7 @@ Installation
 
 Configuration
 -------------
-There are two ways this module can be used:
+There are three ways this module can be used:
 
 1. External script authentication
    In this mode, EZproxy will present the login screen, but the usernames and passwords will be checked
@@ -33,7 +33,9 @@ There are two ways this module can be used:
 
    http://www.oclc.org/support/documentation/ezproxy/usr/cgi.htm
 
-
+3. Ticket Authentication
+   In this mode, links are created which contain ticket authentication information which is used to authenticate
+   the user.  This method, by nature, is more of an API than anything else.
 
 External script authentication
 ------------------------------
@@ -70,6 +72,12 @@ CGI Authentication (recommended)
    Enter the username and password specified in step 1 above.
 
 
+
+Ticket Authentication
+----------------------
+1. Configure EZProzy to accept authentication through tickets, then set the ticket secret in the EZProxy
+   settings page
+
 Usage
 -----
 1. External script authentication
@@ -85,6 +93,10 @@ Usage
    If the user is not logged in, Drupal will prompt them to login.  When successful Drupal will report back
    to EZproxy with the successful logon attempt and the user will be taken to the database they requested.
 
+3. Ticket Authentication
+   Create links using the ezproxy_l() function this module provides.  This function acts just like the l()
+   function in Drupal core except that the "path" contains the URL of the database you wish to connect to.
+   The function returns a fully decorated URL.
 
 Notes
 -----
