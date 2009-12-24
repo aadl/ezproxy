@@ -6,7 +6,6 @@
  * Provides integration between Drupal and EZProxy
  */
  
- include_once('ezproxyticket.php');
  
 /**
  * Implementatin of hook_menu
@@ -87,19 +86,16 @@ function ezproxy_authenticate() {
  * see http://www.oclc.org/support/documentation/ezproxy/usr/cgi2.htm
  *
  * To use this method copy this line into the users.txt file (part of the ezproxy package)
- * someuser:somepass:cgi=http://yourdrupal.ib.org/ezproxylogin? 
+ * ::CGI=http://example.com/ezproxylogin?url=^U 
  */
 function ezproxy_login() {
   global $user;
   global $_ezproxy_url;
   $_ezproxy_url = $_REQUEST['url'];
-  $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
-  $ezproxy_port = variable_get('ezproxy_port', '2048');
-  $ezproxy_username = variable_get('ezproxy_username', 'someuser');
-  $ezproxy_password = variable_get('ezproxy_password', 'somepass');
   
   if ($user->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
-    header("Location:$ezproxy_host:$ezproxy_port/login?user=$ezproxy_username&pass=$ezproxy_password&url=$_ezproxy_url\n\n");
+    $url = ezproxy_create_ticket($_ezproxy_url);
+    header("Location:$url\n\n");
   }
   elseif ($user->uid && !user_access('access ezproxy content')) { //user is already logged in but does NOT have permission to access ezproxy content
     drupal_set_message(t('You do not have permission to access ez-proxy content'), 'error');
@@ -111,7 +107,7 @@ function ezproxy_login() {
 }
 
 /**
- *  Implementation of hook form_alter()
+ * Implementation of hook form_alter()
  * Adds a url field to the form
  */
 function ezproxy_form_alter(&$form, $form_state, $form_id) {
@@ -127,17 +123,15 @@ function ezproxy_form_alter(&$form, $form_state, $form_id) {
 
 /**
  * Implementation of hook_user
+ * Used as part of the CGI authentication method
  */
 function ezproxy_user($op, &$edit, &$account, $category = NULL) {
   if ($op == 'login' && !empty($edit['ezproxy_url'])) {
     $_ezproxy_url = $edit['ezproxy_url'];
-    $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
-    $ezproxy_port = variable_get('ezproxy_port', '2048');
-    $ezproxy_username = variable_get('ezproxy_username', 'someuser');
-    $ezproxy_password = variable_get('ezproxy_password', 'somepass');
 
     if ($account->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
-      header("Location:$ezproxy_host:$ezproxy_port/login?user=$ezproxy_username&pass=$ezproxy_password&url=$_ezproxy_url\n\n");
+      $url = ezproxy_create_ticket($_ezproxy_url);
+      header("Location:$url\n\n");
       die();
     }
     else {
@@ -165,18 +159,6 @@ function ezproxy_settings() {
     '#title' => t('EZproxy port'),
     '#default_value' => variable_get('ezproxy_port', '2048'),
     '#description' => t('The port used by the exproxy server'),
-  );
-  $form['ezproxy_username'] = array(
-    '#type' => 'textfield',
-    '#title' => t('EZproxy username'),
-    '#default_value' => variable_get('ezproxy_username', 'someuser'),
-    '#description' => t('NOTE this is only used with the CGI authentication method.'),
-  );
-  $form['ezproxy_password'] = array(
-    '#type' => 'textfield',
-    '#title' => t('EZproxy password'),
-    '#default_value' => variable_get('ezproxy_password', 'somepass'),
-    '#description' => t('NOTE this is only used with the CGI authentication method'),
   );
   $form['ezproxy_ticket_secret'] = array(
     '#type' => 'textfield',
@@ -209,7 +191,7 @@ function ezproxy_logout() {
 
 
 /**
- * Redirects to the EZproxy screen using a ticket
+ * Generates a HTML link to the EZProxy database using tickets
  * This is used in the same way as the l() function
  * except that an ezproxy URL is returned, with the appropriate 
  * ticket attached.
@@ -226,11 +208,31 @@ function ezproxy_l($text, $path, $options = array()) {
     return;
   }
   
+  $url = ezproxy_create_ticket($path);
+
+  return l($text, $url, $options);
+}
+
+
+/**
+ * Generates the URL to use with EZProxy tickets
+ *
+ * @param $path the URL of the database to connect to
+ * @return Decorated URL to use with ezproxy authentication.
+ */
+function ezproxy_create_ticket($path) {
+  global $user;
+  include_once('ezproxyticket.php');
+   
+  if ($user->uid == 0 ) {
+    return FALSE;
+  }
+  
   $ezproxy_host = variable_get('ezproxy_host', 'http://ezproxy.example.com');
   $ezproxy_port = variable_get('ezproxy_port', '2048');
   $ezproxy_ticket_secret = variable_get('ezproxy_ticket_secret', '');
   
   $ezproxy = new EZproxyTicket("$ezproxy_host:$ezproxy_port", $ezproxy_ticket_secret, $user->name);
 
-  return l($text, $ezproxy->url($path), $options);
+  return $ezproxy->url($path);
 }

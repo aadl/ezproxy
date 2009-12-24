@@ -41,9 +41,8 @@ External script authentication
 ------------------------------
 
 1. Configure EZproxy to use Drupal as the external script for authentication.
-   Copy the following line into the ezproxy user.txt file (/usr/local/ezproxy/user.txt), replacing 'someuser'
-   and 'somepass' with a username and password that Drupal will use for
-   its communication.  Also replace example.com with the domain name for your Drupal site.
+   Copy the following line into the ezproxy user.txt file (/usr/local/ezproxy/user.txt),
+   replace example.com with the domain name for your Drupal site.
   
    ::external=http://example.com/ezproxyauth,post=ezuser=^u&ezpass=^p,valid=+OK
 
@@ -51,26 +50,19 @@ External script authentication
    for your ezproxy server.  If you have this installed in the same machine as Drupal this is probably the
    same domain name as your Drupal site.
 
-   Note: you do not need to enter any username or password, they are not used for this authentication method
-
-
 
 CGI Authentication (recommended)
 --------------------------------
 
 1. Configure ezproxy to use Drupal for authentication.
-   Copy the following line into the ezproxy user.txt file (/usr/local/ezproxy/user.txt), replacing 'someuser'
-   and 'somepass' with a username and password that Drupal will use for
-   its communication.  Also replace example.com with the domain name for your Drupal site.
+   Copy the following line into the ezproxy user.txt file (/usr/local/ezproxy/user.txt),
+   replace example.com with the domain name for your Drupal site.
   
-   someuser:somepass:cgi=http://example.com/ezproxylogin?
+   ::CGI=http://example.com/ezproxylogin?url=^U
 
-2. Go to the configuration page for ezproxy (admin >> site configuration >> ezproxy) and enter the hostname
-   for your ezproxy server.  If you have this installed in the same machine as Drupal this is probably the
-   same domain name as your Drupal site.
-
-   Enter the username and password specified in step 1 above.
-
+2. Go to the configuration page for ezproxy (admin >> site configuration >> ezproxy) and enter the hostname,
+   port, and ticket secret for your ezproxy server.  If you have this installed in the same machine as Drupal
+   this is probably the same domain name as your Drupal site.
 
 
 Ticket Authentication
