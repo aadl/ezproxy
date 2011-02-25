@@ -1,4 +1,3 @@
-; $Id$
 name = EZProxy
 description = "Allows more drupal to intergrate with EZProxy"
 version = "6.x-0.1"
