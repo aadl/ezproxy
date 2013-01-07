@@ -92,16 +92,29 @@ function ezproxy_login() {
   global $_ezproxy_url;
   $_ezproxy_url = $_REQUEST['url'];
   
-  if ($user->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
-    $url = ezproxy_create_ticket($_ezproxy_url);
-    header("Location:$url\n\n");
-  }
-  elseif ($user->uid && !user_access('access ezproxy content')) { //user is already logged in but does NOT have permission to access ezproxy content
-    drupal_set_message(t('You do not have permission to access ez-proxy content'), 'error');
-    return '';
+  if(module_exists('sopac')){
+    if ($user->uid && $user->bcode_verified) {
+      $url = ezproxy_create_ticket($_ezproxy_url);
+      header("Location:$url\n\n");
+    }
+    elseif ($user->uid && !$user->bcode_verified) {
+      $verify_link = l(t('Please add/verify your Library Card and try again.'), 'user/' . $user->uid);
+      drupal_set_message(t('You do not have permission to access this content. ').$verify_link, 'error');
+      return '';
+    }
   }
   else {
-    return drupal_get_form('user_login');
+    if ($user->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
+      $url = ezproxy_create_ticket($_ezproxy_url);
+      header("Location:$url\n\n");
+    }
+    elseif ($user->uid && !user_access('access ezproxy content')) { //user is already logged in but does NOT have permission to access ezproxy content
+      drupal_set_message(t('You do not have permission to access ez-proxy content'), 'error');
+      return '';
+    }
+    else {
+      return drupal_get_form('user_login');
+    }
   }
 }
 
@@ -127,16 +140,29 @@ function ezproxy_form_alter(&$form, $form_state, $form_id) {
 function ezproxy_user($op, &$edit, &$account, $category = NULL) {
   if ($op == 'login' && !empty($edit['ezproxy_url'])) {
     $_ezproxy_url = $edit['ezproxy_url'];
-
-    if ($account->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
-      $url = ezproxy_create_ticket($_ezproxy_url);
-      header("Location:$url\n\n");
-      die();
+    if(module_exists('sopac')){
+      if ($user->uid && $user->bcode_verified) {
+        $url = ezproxy_create_ticket($_ezproxy_url);
+        header("Location:$url\n\n");
+      }
+      elseif ($user->uid && !$user->bcode_verified) {
+        $verify_link = l(t('Please add/verify your Library Card and try again.'), 'user/' . $user->uid);
+        drupal_set_message(t('You do not have permission to access this content. ').$verify_link, 'error');
+        drupal_access_denied();
+        exit();
+      }
     }
     else {
-      drupal_set_message(t("You do not have permission to access EZProxy content"));
-      drupal_access_denied();
-      exit();
+      if ($account->uid && user_access('access ezproxy content')) { //user is already logged in has permission to access ezproxy content
+        $url = ezproxy_create_ticket($_ezproxy_url);
+        header("Location:$url\n\n");
+        die();
+      }
+      else {
+        drupal_set_message(t("You do not have permission to access EZProxy content"));
+        drupal_access_denied();
+        exit();
+      }
     }
   }
 }
