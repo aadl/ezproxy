@@ -1,0 +1,9 @@
+{
+    "name": "aadl/ezproxy",
+    "description": "EZProxy Authentication for Drupal",
+    "type": "drupal-custom-module",
+    "require": {
+        "php": "^7.0",
+        "drupal/core": "^8.0",
+    }
+}
