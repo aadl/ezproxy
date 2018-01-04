@@ -1,0 +1,5 @@
+name: 'ezproxy'
+description: 'EZProxy Authentication for Drupal'
+core: 8.x
+package: 'AADL Modules'
+type: module
