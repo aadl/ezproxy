@@ -67,7 +67,7 @@ class EzproxyAdminForm extends ConfigFormBase
           '#size' => 64,
           '#maxlength' => 128,
           '#description' => t('URL to Ezproxy install. Ex: https://ezproxy.university.edu'),
-        ]
+        ];
 
         return parent::buildForm($form, $form_state);
     }
