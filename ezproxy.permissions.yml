@@ -1,0 +1,4 @@
+access ezproxy content:
+  title: 'Access Ezproxy Content'
+  description: 'Gives access to ezproxy content'
+  restrict access: TRUE
