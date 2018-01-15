@@ -5,3 +5,10 @@ ezproxy.admin_form:
     _form: \Drupal\ezproxy\Form\EzproxyAdminForm
   requirements:
     _permission: 'access administration pages'
+
+ezproxy.external:
+  path: /ezproxy/auth
+  defaults:
+    _controller: '\Drupal\ezproxy\Controller\EzproxyController::externalAuth'
+  requirements:
+    _access: 'TRUE'
