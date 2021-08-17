@@ -38,7 +38,7 @@ class EzproxyTicketController {
     if (strcmp($groups, "") != 0) {
       $packet .=  '$g' . $groups;
     }
-    $EZproxyTicket = urlencode(md5($secret . $user . $packet) . $packet);
+    $EZproxyTicket = urlencode(sha1($secret . $user . $packet) . $packet);
     $this->EZproxyStartingPointURL = $EZproxyServerURL . "/login?user=" . 
       urlencode($user) . "&ticket=" . $EZproxyTicket;
   }
