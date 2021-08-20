@@ -21,7 +21,7 @@
 namespace Drupal\ezproxy\Controller;
 
 class EzproxyTicketController {
-  private $EZproxyStartingPointURL;
+  public $EZproxyStartingPointURL;
 
   public function EzproxyTicket(
     $EZproxyServerURL,
