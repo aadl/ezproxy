@@ -18,10 +18,12 @@
 // Once the object is created, you can call its url method with a
 // database URL to generate a ticket URL.
 
-class EZproxyTicket {
-  var $EZproxyStartingPointURL;
+namespace Drupal\ezproxy\Controller;
 
-  function EZproxyTicket(
+class EzproxyTicketController {
+  public $EZproxyStartingPointURL;
+
+  public function EzproxyTicket(
     $EZproxyServerURL,
     $secret,
     $user,
@@ -36,12 +38,12 @@ class EZproxyTicket {
     if (strcmp($groups, "") != 0) {
       $packet .=  '$g' . $groups;
     }
-    $EZproxyTicket = urlencode(md5($secret . $user . $packet) . $packet);
+    $EZproxyTicket = urlencode(sha1($secret . $user . $packet) . $packet);
     $this->EZproxyStartingPointURL = $EZproxyServerURL . "/login?user=" . 
       urlencode($user) . "&ticket=" . $EZproxyTicket;
   }
 
-  function URL($url)
+  public function url($url)
   {
     return $this->EZproxyStartingPointURL . "&url=" . $url;
   }
