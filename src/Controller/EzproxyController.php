@@ -7,7 +7,7 @@ namespace Drupal\ezproxy\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\user\Entity\User;
-use Drupal\user\UserAuth;
+use Drupal\user\UserAuthentication;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +16,7 @@ class EzproxyController extends ControllerBase
 {
     protected $userauth;
 
-    public function __construct(UserAuth $userauth)
+    public function __construct(UserAuthentication $userauth)
     {
         $this->userauth = $userauth;
     }
