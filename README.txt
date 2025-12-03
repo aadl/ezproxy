@@ -1,7 +1,7 @@
 Requirements
 ------------
 
-This module requires Drupal 5 or higher and EZproxy installed
+This module requires Drupal 10 or higher and EZproxy installed
 
 
 Installation
