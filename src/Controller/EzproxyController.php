@@ -11,6 +11,7 @@ use Drupal\user\UserAuthentication;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class EzproxyController extends ControllerBase
 {
@@ -62,4 +63,34 @@ class EzproxyController extends ControllerBase
         $response->setContent("+FAIL");
         return $response;
     }
+
+  public function authenticate(Request $request) {
+    $current_user = \Drupal::currentUser();
+    $ezproxy_url = $request->query->get('url');
+
+    // check if user is logged in and if they have ezproxy permissions
+    if ($current_user->isAuthenticated()) {
+      if ($user->hasPermission('access ezproxy content')) {
+        return $this->redirectToEzproxy($current_user->getAccountName(), $ezproxy_url);
+      }
+      // no permission for ezproxy, redirect to account page
+      // should flash message for card expired or no card on account
+      return new RedirectResponse(\Drupal\Core\Url::fromRoute('user.page')->toString());
+    }
+
+    $session = $request->getSession();
+    $session->set('ezproxy_return_url', $ezproxy_url);
+
+    return new RedirectResponse('/ezproxy/auth');
+  }
+
+  public static function redirectEzproxy($pid, $ezproxy_url) {
+    $ez_secret = \Drupal::config('ezproxy.settings')->get('ticket_secret');
+    $ez_url = \Drupal::config('ezproxy.settings')->get('ezproxy_url');
+    $ez_ticket = new EzproxyTicketController();
+    $ez_ticket->EZproxyTicket($ez_url, $ez_secret, $user->get('field_patron_id')->value, 'patron');
+
+    $final_url = $ezproxy_base . '?pid=' . urlencode($pid) . '&ticket=' . urlencode($ticket) . '&url=' . urlencode($ezproxy_url);
+    return new RedirectResponse($final_url);
+  }
 }
