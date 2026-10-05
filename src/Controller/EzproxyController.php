@@ -89,8 +89,8 @@ class EzproxyController extends ControllerBase
     $ez_url = \Drupal::config('ezproxy.settings')->get('ezproxy_url');
     $ez_ticket = new EzproxyTicketController();
     $ez_ticket->EZproxyTicket($ez_url, $ez_secret, $user->get('field_patron_id')->value, 'patron');
-
-    $final_url = $ezproxy_base . '?pid=' . urlencode($pid) . '&ticket=' . urlencode($ticket) . '&url=' . urlencode($ezproxy_url);
-    return new RedirectResponse($final_url);
+    $redirect_url = $ez_ticket->EZproxyStartingPointURL;
+    
+    return new RedirectResponse($redirect_url);
   }
 }
