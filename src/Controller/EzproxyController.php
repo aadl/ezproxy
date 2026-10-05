@@ -65,13 +65,13 @@ class EzproxyController extends ControllerBase
     }
 
   public function authenticate(Request $request) {
-    $current_user = \Drupal::currentUser();
+    $user = \Drupal::currentUser();
     $ezproxy_url = $request->query->get('url');
 
     // check if user is logged in and if they have ezproxy permissions
     if ($current_user->isAuthenticated()) {
       if ($user->hasPermission('access ezproxy content')) {
-        return $this->redirectToEzproxy($current_user->getAccountName(), $ezproxy_url);
+        return $this->redirectToEzproxy( $pid = $user->get('field_patron_id')->value, $ezproxy_url);
       }
       // no permission for ezproxy, redirect to account page
       // should flash message for card expired or no card on account
@@ -88,9 +88,9 @@ class EzproxyController extends ControllerBase
     $ez_secret = \Drupal::config('ezproxy.settings')->get('ticket_secret');
     $ez_url = \Drupal::config('ezproxy.settings')->get('ezproxy_url');
     $ez_ticket = new EzproxyTicketController();
-    $ez_ticket->EZproxyTicket($ez_url, $ez_secret, $user->get('field_patron_id')->value, 'patron');
+    $ez_ticket->EZproxyTicket($ez_url, $ez_secret, $pid, 'patron');
     $redirect_url = $ez_ticket->EZproxyStartingPointURL;
-    
+
     return new RedirectResponse($redirect_url);
   }
 }
