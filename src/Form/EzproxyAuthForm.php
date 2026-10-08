@@ -12,15 +12,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\user\Entity\User;
 use Drupal\user\UserAuthentication;
-use \Drupal\ezproxy\Controller\EzproxyController;
+use Drupal\ezproxy\Controller\EzproxyController;
 
 class EzproxyAuthForm extends FormBase {
-
-  protected $userauth;
-
-  public function __construct(UserAuthentication $userauth) {
-    $this->userauth = $userauth;
-  }
 
   public function getFormId() {
     return 'ezproxy_auth_form';
@@ -50,7 +44,7 @@ class EzproxyAuthForm extends FormBase {
     $password = $form_state->getValue('password');
 
     // check if provided credentials match
-    $uid = $this->userAuth->authenticate($username, $password);
+    $uid = \Drupal\user\UserAuthentication::authenticate($username, $password);
 
     if (!$uid) {
       $form_state->setErrorByName('username', $this->t('Invalid username or password. Please try again.'));
