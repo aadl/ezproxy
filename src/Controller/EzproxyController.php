@@ -81,7 +81,7 @@ class EzproxyController extends ControllerBase
     $session = $request->getSession();
     $session->set('ezproxy_return_url', $ezproxy_url);
 
-    return new RedirectResponse('/ezproxy/auth');
+    return new RedirectResponse('/ezproxy/login');
   }
 
   public static function redirectEzproxy($pid, $ezproxy_url) {
