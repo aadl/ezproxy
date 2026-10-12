@@ -7,8 +7,21 @@ ezproxy.admin_form:
     _permission: 'access administration pages'
 
 ezproxy.external:
-  path: /ezproxy/auth
+  path: /ezproxy/auth/external
   defaults:
     _controller: '\Drupal\ezproxy\Controller\EzproxyController::externalAuth'
   requirements:
     _access: 'TRUE'
+
+ezproxy.auth:
+  path: /ezproxy/auth
+  defaults:
+    _controller: '\Drupal\ezproxy\Controller\EzproxyController::authenticate'
+  requirements:
+    _access: 'TRUE'
+
+ezproxy.auth_form:
+  path: /ezproxy/login
+  defaults:
+    _form: '\Drupal\ezproxy\Form\EzproxyAuthForm'
+    _title: 'AADL Database Access Form'
