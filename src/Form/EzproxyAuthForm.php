@@ -43,26 +43,39 @@ class EzproxyAuthForm extends FormBase {
     $user = $form_state->getValue('username');
     $password = $form_state->getValue('password');
 
+    $user_auth = \Drupal::service('user.auth');
+
     // check if provided credentials match
-    $uid = UserAuthentication::authenticate($user, $password);
+    //$uid = UserAuthentication::authenticateUser($user, $password);
+    $uid = $user_auth->authenticate($user, $password);
 
     if (!$uid) {
       $form_state->setErrorByName('username', $this->t('Invalid username or password. Please try again.'));
     }
 
     // grab the pid for the account and set it on the form
-    $pid = $user->get('field_patron_id')->value;
-    $form_state->set('pid', $pid);
-    $form_state->set('uid', $uid);
+      $user = User::load($uid);
+      $pid = $user->get('field_patron_id')->value;
+      $form_state->set('pid', $pid);
+      $form_state->set('uid', $uid);
   }
 
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $pid = $form_state->get('pid');
     $uid = $form_state->get('uid');
-    $user = User::load($uid);
+    $user = $user = User::load($uid);
 
-    // log user in if they weren't already
-    \Drupal\user\LoginFinalizer::finalizeLogin($user);
+
+    $version = \Drupal::VERSION;
+    $major_version = explode('.', $version)[0];
+    
+    $user = User::load($uid);
+      
+      if ((int)$major_version <= 10) {
+        user_login_finalize($user);
+      } else {
+        \Drupal::service(LoginFinalizer::class)->finalizeLogin($user);
+      }
 
     // get ezproxy url to redirect to
     $session = $this->getRequest()->getSession();
