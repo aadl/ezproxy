@@ -44,7 +44,7 @@ class EzproxyAuthForm extends FormBase {
     $password = $form_state->getValue('password');
 
     // check if provided credentials match
-    $uid = \Drupal\user\UserAuthentication::authenticate($username, $password);
+    $uid = UserAuthentication::authenticate($user, $password);
 
     if (!$uid) {
       $form_state->setErrorByName('username', $this->t('Invalid username or password. Please try again.'));
@@ -59,7 +59,7 @@ class EzproxyAuthForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $pid = $form_state->get('pid');
     $uid = $form_state->get('uid');
-    $user = $user = \Drupal\user\Entity\User::load($uid);
+    $user = User::load($uid);
 
     // log user in if they weren't already
     \Drupal\user\LoginFinalizer::finalizeLogin($user);
