@@ -69,6 +69,7 @@ class EzproxyController extends ControllerBase
     $uid = \Drupal::currentUser()->id();
     $ezproxy_url = $request->query->get('url');
     $user = User::load($uid);
+      
     // check if user is logged in and if they have ezproxy permissions
     if ($user->isAuthenticated()) {
       if ($user->hasPermission('access ezproxy content')) {

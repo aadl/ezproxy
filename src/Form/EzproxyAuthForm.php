@@ -9,9 +9,7 @@ namespace Drupal\ezproxy\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 use Drupal\user\Entity\User;
-use Drupal\user\UserAuthentication;
 use Drupal\ezproxy\Controller\EzproxyController;
 
 class EzproxyAuthForm extends FormBase {
@@ -43,10 +41,8 @@ class EzproxyAuthForm extends FormBase {
     $user = $form_state->getValue('username');
     $password = $form_state->getValue('password');
 
-    $user_auth = \Drupal::service('user.auth');
-
     // check if provided credentials match
-    //$uid = UserAuthentication::authenticateUser($user, $password);
+    $user_auth = \Drupal::service('user.auth');
     $uid = $user_auth->authenticate($user, $password);
 
     if (!$uid) {
@@ -64,7 +60,6 @@ class EzproxyAuthForm extends FormBase {
     $pid = $form_state->get('pid');
     $uid = $form_state->get('uid');
     $user = $user = User::load($uid);
-
 
     $version = \Drupal::VERSION;
     $major_version = explode('.', $version)[0];
