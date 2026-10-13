@@ -94,8 +94,13 @@ class EzproxyController extends ControllerBase
     $ez_ticket->EZproxyTicket($ez_url, $ez_secret, $pid, 'patron');
     $redirect_url = $ez_ticket->EZproxyStartingPointURL . "&url=$ezproxy_url";
 
-    //return new TrustedRedirectResponse($redirect_url);
-    return (new TrustedRedirectResponse($redirect_url))->addCacheableDependency((new \Drupal\Core\Cache\CacheableMetadata())->setCacheMaxAge(0));
+    $response = new TrustedRedirectResponse($redirect_url);
+    $response->addCacheableDependency((new \Drupal\Core\Cache\CacheableMetadata())->setCacheMaxAge(0));
+    
+    // Force the browser to never cache the redirect header
+    $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    
+    return $response;
   }
 
 }
