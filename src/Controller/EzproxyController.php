@@ -82,7 +82,7 @@ class EzproxyController extends ControllerBase
     }
 
     $session = $request->getSession();
-    $session->set('ezproxy_return_url', $ezproxy_url);
+    $session->set('ezproxy_url', $ezproxy_url);
 
     return new RedirectResponse('/ezproxy/login');
   }
