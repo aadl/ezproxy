@@ -21,7 +21,7 @@ class EzproxyAuthForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['username'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Username'),
+      '#title' => $this->t('Username or or e-mail address'),
       '#required' => TRUE,
     ];
     $form['password'] = [
