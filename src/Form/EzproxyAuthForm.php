@@ -11,6 +11,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
 use Drupal\ezproxy\Controller\EzproxyController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class EzproxyAuthForm extends FormBase {
 
@@ -63,14 +64,20 @@ class EzproxyAuthForm extends FormBase {
     }
 
     // grab the pid for the account and set it on the form
-      $user = User::load($uid);
-      $pid = $user->get('field_patron_id')->value;
-      if (is_null($pid)) {
-        $form_state->setErrorByName('username', $this->t('Your AADL account does not have a library card attached to it.  Please add your library card at ' . '<a href="https://aadl.org/user/'.$uid.'/edit/barcode">https://aadl.org/user/'.$uid.'/edit/barcode</a> and try again'));
-        return;
-      }
-      $form_state->set('pid', $pid);
-      $form_state->set('uid', $uid);
+    $user = User::load($uid);
+    if (!$user->hasPermission('access ezproxy content')) {
+      // no permission for ezproxy, redirect to account page
+      // should flash message for card expired or no card on account
+      return new RedirectResponse(\Drupal\Core\Url::fromRoute('user.page')->toString());
+    }
+      
+    $pid = $user->get('field_patron_id')->value;
+    if (is_null($pid)) {
+      $form_state->setErrorByName('username', $this->t('Your AADL account does not have a library card attached to it.  Please add your library card at ' . '<a href="https://aadl.org/user/'.$uid.'/edit/barcode">https://aadl.org/user/'.$uid.'/edit/barcode</a> and try again'));
+      return;
+    }
+    $form_state->set('pid', $pid);
+    $form_state->set('uid', $uid);
   }
 
   public function submitForm(array &$form, FormStateInterface $form_state) {
