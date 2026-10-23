@@ -65,16 +65,16 @@ class EzproxyAuthForm extends FormBase {
 
     // grab the pid for the account and set it on the form
     $user = User::load($uid);
-    if (!$user->hasPermission('access ezproxy content')) {
-      // no permission for ezproxy, redirect to account page
-      // should flash message for card expired or no card on account
-      return new RedirectResponse(\Drupal\Core\Url::fromRoute('user.page')->toString());
-    }
       
     $pid = $user->get('field_patron_id')->value;
     if (is_null($pid)) {
       $form_state->setErrorByName('username', $this->t('Your AADL account does not have a library card attached to it.  Please add your library card at ' . '<a href="https://aadl.org/user/'.$uid.'/edit/barcode">https://aadl.org/user/'.$uid.'/edit/barcode</a> and try again'));
       return;
+    }
+    if (!$user->hasPermission('access ezproxy content')) {
+      // no permission for ezproxy, redirect to account page
+      // should flash message for card expired or no card on account
+      return new RedirectResponse(\Drupal\Core\Url::fromRoute('user.page')->toString());
     }
     $form_state->set('pid', $pid);
     $form_state->set('uid', $uid);
