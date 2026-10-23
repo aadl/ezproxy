@@ -76,18 +76,6 @@ class EzproxyAuthForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $pid = $form_state->get('pid');
     $uid = $form_state->get('uid');
-    $user = $user = User::load($uid);
-
-    $version = \Drupal::VERSION;
-    $major_version = explode('.', $version)[0];
-    
-    $user = User::load($uid);
-      
-      if ((int)$major_version <= 10) {
-        user_login_finalize($user);
-      } else {
-        \Drupal::service(LoginFinalizer::class)->finalizeLogin($user);
-      }
 
     // get ezproxy url to redirect to
     $session = $this->getRequest()->getSession();

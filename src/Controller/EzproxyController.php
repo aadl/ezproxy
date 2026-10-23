@@ -70,17 +70,7 @@ class EzproxyController extends ControllerBase
     $uid = \Drupal::currentUser()->id();
     $ezproxy_url = $request->query->get('url');
     $user = User::load($uid);
-
-    // check if user is logged in and if they have ezproxy permissions
-    if ($user->isAuthenticated()) {
-      if ($user->hasPermission('access ezproxy content')) {
-        return $this->redirectEzproxy( $pid = $user->get('field_patron_id')->value, $ezproxy_url);
-      }
-      // no permission for ezproxy, redirect to account page
-      // should flash message for card expired or no card on account
-      return new RedirectResponse(\Drupal\Core\Url::fromRoute('user.page')->toString());
-    }
-
+     
     $session = $request->getSession();
     $session->set('ezproxy_url', $ezproxy_url);
 
