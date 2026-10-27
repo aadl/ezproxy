@@ -24,7 +24,7 @@ class EzproxyLibbyAuthByCred extends FormBase {
 
 
     $form['username'] = [
-      '#prefix' => '<div class="credential-wrap"><h3>Authorize with your login</h3>',
+      '#prefix' => '<div class="credential-wrap"><h3>Verify with your login</h3>',
       '#type' => 'textfield',
       '#title' => $this->t('Username or e-mail address')
     ];
@@ -38,7 +38,7 @@ class EzproxyLibbyAuthByCred extends FormBase {
     // Button 1: Triggers the default submitForm() method
     $form['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Authorize Login'),
+      '#value' => $this->t('Submit'),
     ];
 
     return $form;
@@ -81,9 +81,8 @@ class EzproxyLibbyAuthByCred extends FormBase {
         return;
       }
       if (!$user->hasPermission('access ezproxy content')) {
-        // no permission for ezproxy, redirect to account page
-        // should flash message for card expired or no card on account
-        return new RedirectResponse(\Drupal\Core\Url::fromRoute('user.page')->toString());
+        $form_state->setErrorByName('barcode', $this->t('Your library card may be expired.  Please renew it at https://aadl.org/myaccount'));
+        return;
       }
       $form_state->set('pid', $pid);
       $form_state->set('uid', $uid);
@@ -106,6 +105,23 @@ class EzproxyLibbyAuthByCred extends FormBase {
     //return new RedirectResponse('/ezproxy/libby-select');
 
  
+  }
+
+  public function barcode_expired($barcode){
+    $api_url = \Drupal::config('arborcat.settings')->get('api_url');
+    $guzzle = \Drupal::httpClient();
+    $selfcheck_key = \Drupal::config('arborcat.settings')->get('selfcheck_key');
+    $selfcheck_key .= '-' .  $barcode;
+    try{
+      $patron = json_decode($guzzle->get("$api_url/patron/$selfcheck_key/get")->getBody()->getContents());
+      if ($patron_expires >= time()) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (\Exception $e){
+      return false;
+    }
   }
 
 }
