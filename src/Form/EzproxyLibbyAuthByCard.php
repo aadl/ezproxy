@@ -119,8 +119,7 @@ class EzproxyLibbyAuthByCard extends FormBase {
       $selfcheck_key .= '-' .  $barcode;
       $patron = json_decode($guzzle->get("$api_url/patron/$selfcheck_key/get")->getBody()->getContents());
       $patron_expires = strtotime($patron->expires);
-      //if ($patron_expires >= time()) {
-      if ($patron_expires < time()) {
+      if ($patron_expires >= time()) {
         //not expired
         $resp->status = "VALID";
         $resp->patron_id = $response_body->patron_id;
