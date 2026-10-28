@@ -109,7 +109,7 @@ class EzproxyLibbyCardSelection extends FormBase {
         '#required' => TRUE,
       ];
     } else {
-      \Drupal::messenger()->addError('There are no valid cards on this account.  Please add or renew your library card at <a href="https://aadl.org/user/'.$ezproxy_auth_uid.'/edit/barcode">https://aadl.org/user/'.$uid.'/edit/barcode</a>');  
+      \Drupal::messenger()->addError('There are no valid cards on this account.  Please add or renew your library card at <a href="https://aadl.org/user/'.$ezproxy_auth_uid.'/edit/barcode">https://aadl.org/user/'.$ezproxy_auth_uid.'/edit/barcode</a>');  
     }
     $session->set('ezproxy_auth_valid_pids', $pids_list);
     $form['#attached']['library'][] = 'ezproxy/libby';
