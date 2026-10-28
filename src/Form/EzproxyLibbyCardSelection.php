@@ -114,11 +114,18 @@ class EzproxyLibbyCardSelection extends FormBase {
     }
     $session->set('ezproxy_auth_valid_pids', $pids_list);
     $form['#attached']['library'][] = 'ezproxy/libby';
-    $form['submit']= [
-      '#type' => 'submit',
-      '#value' => $this->t('Submit'),
-      '#suffix' => '<div class="submit-divider"></div><a href="/ezproxy/libby">Authorize card from a different account</a>'
-    ];
+    if (count($radio_options)) {
+      $form['submit']= [
+        '#type' => 'submit',
+        '#value' => $this->t('Submit'),
+        '#suffix' => '<div class="submit-divider"></div><a href="/ezproxy/libby">Authorize card from a different account</a>'
+      ];
+    } else {
+      $form['change_auth'] = [
+        '#type' => 'markup',
+        '#markup' => '<div class="submit-divider"></div><a href="/ezproxy/libby">Authorize card from a different account</a>',
+      ];
+    }
     return $form;
   }
 
