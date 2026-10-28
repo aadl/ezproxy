@@ -81,6 +81,7 @@ class EzproxyLibbyCardSelection extends FormBase {
         $patron = json_decode($guzzle->get("$api_url/patron/$api_key/get")->getBody()->getContents());
       } catch (\Exception $e) {
         \Drupal::messenger()->addError('Error retrieving patron data for ' . $field_barcode['value']);  
+        continue;
       }
       
       //only show cards from patrons who are not expired
