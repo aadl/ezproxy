@@ -99,6 +99,7 @@ class EzproxyLibbyAuthByCred extends FormBase {
     $request = \Drupal::request();
     $session = $request->getSession();
     $session->set('ezproxy_auth_pid', $pid);
+    $session->set('ezproxy_auth_uid', $uid);
 
     $form_state->setResponse(new RedirectResponse('/ezproxy/libby-select'));
 

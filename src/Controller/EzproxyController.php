@@ -75,6 +75,7 @@ class EzproxyController extends ControllerBase
     $session = $request->getSession();
     $session->remove('ezproxy_url');
     $session->remove('ezproxy_auth_pid');
+    $session->remove('ezproxy_auth_uid');
     $session->remove('ezproxy_auth_valid_pids');
 
     // Retrieve the 'Referer' header securely
@@ -98,6 +99,7 @@ class EzproxyController extends ControllerBase
       $current_user = \Drupal::currentUser();
       if ($current_user->isAuthenticated()) {
         if ($current_user->hasPermission('access ezproxy content')) {
+          $session->set('ezproxy_auth_uid', $current_user->id());
           return new RedirectResponse('/ezproxy/libby-select');
         }
       }

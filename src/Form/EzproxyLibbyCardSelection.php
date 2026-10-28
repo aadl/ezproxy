@@ -26,17 +26,16 @@ class EzproxyLibbyCardSelection extends FormBase {
     $session = $this->getRequest()->getSession();
     $ezproxy_url = $session->get('ezproxy_url');
     $ezproxy_auth_pid = $session->get('ezproxy_auth_pid');
+    $ezproxy_auth_uid = $session->get('ezproxy_auth_uid');
 
     if ((!$ezproxy_url || is_null($ezproxy_url) || $ezproxy_url == "")) {
       return new RedirectResponse(\Drupal\Core\Url::fromRoute('user.page')->toString());
     }
 
-    
     // if no form of auth, we can return to login
     if ( (!$ezproxy_auth_pid || is_null($ezproxy_auth_pid) ) && !\Drupal::currentUser()->isAuthenticated()){
       return new RedirectResponse('/ezproxy/libby');
     }
-    
     
     //if the user is logged and we don't have pid then fall back to the logged in user.
     if ((!$ezproxy_auth_pid || is_null($ezproxy_auth_pid) ) && \Drupal::currentUser()->isAuthenticated()) {
@@ -50,23 +49,12 @@ class EzproxyLibbyCardSelection extends FormBase {
       }
     }
 
-
-
-    // lets get the UID from our PID
-    $uids = \Drupal::entityTypeManager()
-      ->getStorage('user')
-      ->getQuery()
-      ->condition('field_patron_id', $ezproxy_auth_pid)
-      ->accessCheck(FALSE)
-      ->execute();
-    if (!empty($uids)) {
-      $uid = reset($uids); 
-    }
-    $user = User::load($uid);
+    $user = \Drupal::entityTypeManager()->getStorage('user')->load($ezproxy_auth_uid);
 
     /*
     * now lets list our library cards
     * The tricky part here, is only showing cards that are valid
+    * sometimes getValue can have a bug, but its inconsistent
     *
     */
     $field_barcodes = $user->get('field_barcode')->getValue();
@@ -153,6 +141,8 @@ class EzproxyLibbyCardSelection extends FormBase {
     $session = $this->getRequest()->getSession();
     $ezproxy_url = $session->get('ezproxy_url');
     $session->remove('ezproxy_url');
+    $session->remove('ezproxy_auth_uid');
+    $session->remove('ezproxy_auth_pid');
 
     $response = EzproxyController::redirectEzproxy($pid, $ezproxy_url);
     $form_state->setResponse($response);
