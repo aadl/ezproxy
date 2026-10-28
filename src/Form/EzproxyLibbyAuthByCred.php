@@ -24,7 +24,7 @@ class EzproxyLibbyAuthByCred extends FormBase {
 
 
     $form['username'] = [
-      '#prefix' => '<div class="credential-wrap"><h3>Verify with your login</h3>',
+      '#prefix' => '<div class="credential-wrap"><h3>Verify with your aadl.org account</h3>',
       '#type' => 'textfield',
       '#title' => $this->t('Username or e-mail address')
     ];
