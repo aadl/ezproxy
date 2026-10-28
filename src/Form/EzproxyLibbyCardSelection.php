@@ -118,12 +118,12 @@ class EzproxyLibbyCardSelection extends FormBase {
       $form['submit']= [
         '#type' => 'submit',
         '#value' => $this->t('Submit'),
-        '#suffix' => '<div class="submit-divider"></div><a href="/ezproxy/libby">Authorize card from a different account</a>'
+        '#suffix' => '<div class="submit-divider"></div><a href="/ezproxy/libby">Verify with a different account</a>'
       ];
     } else {
       $form['change_auth'] = [
         '#type' => 'markup',
-        '#markup' => '<div class="submit-divider"></div><a href="/ezproxy/libby">Authorize card from a different account</a>',
+        '#markup' => '<div class="submit-divider"></div><a href="/ezproxy/libby">Verify with a different account</a>',
       ];
     }
     return $form;
