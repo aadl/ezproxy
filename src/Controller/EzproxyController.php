@@ -69,9 +69,6 @@ class EzproxyController extends ControllerBase
   public function authenticate(Request $request) {
     \Drupal::service('page_cache_kill_switch')->trigger();
 
-    $request = \Drupal::request();
-
-    $request = \Drupal::request();
     $session = $request->getSession();
     $session->remove('ezproxy_url');
     $session->remove('ezproxy_auth_pid');

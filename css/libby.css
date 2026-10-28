@@ -28,6 +28,14 @@
 /*
 * libby-select
 */
+.ezproxy-libby-card-selection-form{
+    width:100%;
+}
+@media screen and (min-width: 768px) {
+    .ezproxy-libby-card-selection-form{
+        width:50%;
+    }
+}
 #edit-card-selection--wrapper {
   background: #fff;
 }
@@ -49,6 +57,9 @@
   box-sizing: border-box;
   line-height: 3.5em;
   padding-left: 3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .form-item-card-selection:has(> input[type="radio"]:checked) {
   background: #d0e2f4;
