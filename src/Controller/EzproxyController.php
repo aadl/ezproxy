@@ -79,7 +79,7 @@ class EzproxyController extends ControllerBase
     $referer = $request->headers->get('referer');
     $refer_test = $request->query->get('refer_test');
     $do_libby_path = false;
-    if ($referer == "https://sentry.libbyapp.com/" || $refer_test == "libby") {
+    if ($referer == "https://sentry.libbyapp.com/" || $referer == "https://mlc.overdrive.com/" || $refer_test == "libby") {
       $do_libby_path = true;
     }
 
