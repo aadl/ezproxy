@@ -1,0 +1,5 @@
+libby:
+  version: 1
+  css:
+    layout:
+      css/libby.css: {}

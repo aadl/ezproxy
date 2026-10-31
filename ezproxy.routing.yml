@@ -25,3 +25,28 @@ ezproxy.auth_form:
   defaults:
     _form: '\Drupal\ezproxy\Form\EzproxyAuthForm'
     _title: 'AADL Database Access Form'
+
+ezproxy.auth_display:
+  path: /ezproxy/libby
+  defaults:
+    _controller: '\Drupal\ezproxy\Controller\EzproxyController::display_login_libby'
+  requirements:
+    _access: 'TRUE'
+
+ezproxy.auth_form_libby_cred:
+  path: /ezproxy/libby-cred
+  defaults:
+    _form: '\Drupal\ezproxy\Form\EzproxyLibbyAuthCred'
+    _title: 'AADL Libby Access'
+
+ezproxy.auth_form_libby_card:
+  path: /ezproxy/libby-card
+  defaults:
+    _form: '\Drupal\ezproxy\Form\EzproxyLibbyAuthCard'
+    _title: 'AADL Libby Access'
+
+ezproxy.auth_form_libby_select:
+  path: /ezproxy/libby-select
+  defaults:
+    _form: '\Drupal\ezproxy\Form\EzproxyLibbyCardSelection'
+    _title: 'AADL Libby Card Selection'

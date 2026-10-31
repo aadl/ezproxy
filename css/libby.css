@@ -1,0 +1,75 @@
+.forms-display{
+    display:flex;
+    justify-content:space-between;
+    flex-direction:column;
+    margin-top:1em;
+}
+
+.form-divider{
+    border-bottom:1px solid #999999;
+    margin: 2em 0em 1em 0em;
+}
+
+
+
+@media screen and (min-width: 768px) {
+	.forms-display{
+        display:flex;
+        justify-content:space-around;
+        flex-direction:row;
+    }
+
+    .form-divider{
+        border-right:1px solid #999999;
+        border-bottom:none;
+    }
+}
+
+/*
+* libby-select
+*/
+.ezproxy-libby-card-selection-form{
+    width:100%;
+}
+@media screen and (min-width: 768px) {
+    .ezproxy-libby-card-selection-form{
+        width:50%;
+    }
+}
+#edit-card-selection--wrapper {
+  background: #fff;
+}
+
+.form-item-card-selection {
+  background: #edf2f6;
+  padding: 1em;
+  margin-bottom: 1em !important;
+  border: 1px solid #becad6;
+  position: relative;
+}
+.form-item-card-selection label {
+  margin-bottom: 0em !important;
+  position: absolute;
+  width: 100%;
+  height: 3.5em;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  line-height: 3.5em;
+  padding-left: 3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.form-item-card-selection:has(> input[type="radio"]:checked) {
+  background: #d0e2f4;
+}
+
+.submit-divider{
+	width:100%;
+	border-top:1px solid #e3e3e3;
+	margin-bottom:2em;
+	margin-top:2em;
+}
+
+

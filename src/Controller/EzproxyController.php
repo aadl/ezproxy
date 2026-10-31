@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\Routing\TrustedRedirectResponse;
+use Drupal\Core\Render\Markup;
 
 class EzproxyController extends ControllerBase
 {
@@ -67,6 +68,26 @@ class EzproxyController extends ControllerBase
 
   public function authenticate(Request $request) {
     \Drupal::service('page_cache_kill_switch')->trigger();
+
+    $session = $request->getSession();
+    $session->remove('ezproxy_url');
+    $session->remove('ezproxy_auth_pid');
+    $session->remove('ezproxy_auth_uid');
+    $session->remove('ezproxy_auth_valid_pids');
+
+    // Retrieve the 'Referer' header securely
+    $referer = $request->headers->get('referer');
+    $refer_test = $request->query->get('refer_test');
+    $do_libby_path = false;
+    $is_overdrive = false;
+    if (!is_null($referer)) {
+      $is_overdrive = str_contains($referer, "overdrive");
+    }
+    if ($referer == "https://sentry.libbyapp.com/" || $referer == "https://sentry.soraapp.com/" || $is_overdrive || $refer_test == "libby") {
+      $do_libby_path = true;
+    }
+
+
     $uid = \Drupal::currentUser()->id();
     $ezproxy_url = $request->query->get('url');
     $user = User::load($uid);
@@ -74,7 +95,54 @@ class EzproxyController extends ControllerBase
     $session = $request->getSession();
     $session->set('ezproxy_url', $ezproxy_url);
 
+
+    if ($do_libby_path) {
+      $current_user = \Drupal::currentUser();
+      if ($current_user->isAuthenticated()) {
+        if ($current_user->hasPermission('access ezproxy content')) {
+          $session->set('ezproxy_auth_uid', $current_user->id());
+          return new RedirectResponse('/ezproxy/libby-select');
+        }
+      }
+      return new RedirectResponse('/ezproxy/libby');
+    } else if (\Drupal::currentUser()->isAuthenticated()) {//automatic for logged in users
+        $current_uid = \Drupal::currentUser()->id();
+        $current_user = User::load($current_uid);
+        if ($current_user->hasPermission('access ezproxy content')) {
+          return $this->redirectEzproxy( $pid = $current_user->get('field_patron_id')->value, $ezproxy_url);
+        }
+    }
+
     return new RedirectResponse('/ezproxy/login');
+  }
+
+
+  public function display_login_libby(){
+    \Drupal::service('page_cache_kill_switch')->trigger();
+
+    $html = '<div class="display"></div>';
+
+    $credForm = $this->formBuilder()->getForm('Drupal\ezproxy\Form\EzproxyLibbyAuthByCred');
+    $cardForm = $this->formBuilder()->getForm('Drupal\ezproxy\Form\EzproxyLibbyAuthByCard');
+    $renderer = \Drupal::service('renderer');
+    $credFormHtml = $renderer->render($credForm);
+    $cardFormHtml = $renderer->render($cardForm);
+
+        return [
+            '#markup' => Markup::create("
+                <div class='forms-display'>
+                {$credFormHtml}
+                <div class='form-divider'></div>
+                {$cardFormHtml}
+                </div>
+            "),
+            '#attached' => [
+              'library' => [
+                'ezproxy/libby', // Format: extension/library_name
+              ],
+            ],
+        ];
+    
   }
 
   public static function redirectEzproxy($pid, $ezproxy_url) {
