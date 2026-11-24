@@ -49,7 +49,7 @@ class EzproxyAdminForm extends ConfigFormBase
         return ['ezproxy.settings'];
     }
 
-    public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state)
+    public function buildForm(array $form, FormStateInterface $form_state)
     {
         $form = [];
         $form['ticket_secret'] = [

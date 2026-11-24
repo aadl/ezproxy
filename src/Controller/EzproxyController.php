@@ -5,6 +5,7 @@
  */
 namespace Drupal\ezproxy\Controller;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\user\Entity\User;
 use Drupal\user\UserAuthentication;
@@ -153,7 +154,7 @@ class EzproxyController extends ControllerBase
     $redirect_url = $ez_ticket->EZproxyStartingPointURL . "&url=$ezproxy_url";
 
     $response = new TrustedRedirectResponse($redirect_url);
-    $response->addCacheableDependency((new \Drupal\Core\Cache\CacheableMetadata())->setCacheMaxAge(0));
+    $response->addCacheableDependency((new CacheableMetadata())->setCacheMaxAge(0));
     
     // Force the browser to never cache the redirect header
     $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
