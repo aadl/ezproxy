@@ -102,27 +102,7 @@ class EzproxyLibbyAuthByCred extends FormBase {
     $session->set('ezproxy_auth_uid', $uid);
 
     $form_state->setResponse(new RedirectResponse('/ezproxy/libby-select'));
-
-    //return new RedirectResponse('/ezproxy/libby-select');
-
  
-  }
-
-  public function barcode_expired($barcode){
-    $api_url = \Drupal::config('arborcat.settings')->get('api_url');
-    $guzzle = \Drupal::httpClient();
-    $selfcheck_key = \Drupal::config('arborcat.settings')->get('selfcheck_key');
-    $selfcheck_key .= '-' .  $barcode;
-    try{
-      $patron = json_decode($guzzle->get("$api_url/patron/$selfcheck_key/get")->getBody()->getContents());
-      if ($patron_expires >= time()) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (\Exception $e){
-      return false;
-    }
   }
 
 }
