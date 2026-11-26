@@ -7,6 +7,7 @@
 
 namespace Drupal\ezproxy\Form;
 
+use Drupal\Core\Url;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
@@ -74,7 +75,7 @@ class EzproxyAuthForm extends FormBase {
     if (!$user->hasPermission('access ezproxy content')) {
       // no permission for ezproxy, redirect to account page
       // should flash message for card expired or no card on account
-      return new RedirectResponse(\Drupal\Core\Url::fromRoute('user.page')->toString());
+      return new RedirectResponse(Url::fromRoute('user.page')->toString());
     }
     $form_state->set('pid', $pid);
     $form_state->set('uid', $uid);

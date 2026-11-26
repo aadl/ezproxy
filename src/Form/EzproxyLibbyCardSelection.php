@@ -7,6 +7,7 @@
 
 namespace Drupal\ezproxy\Form;
 
+use Drupal\Core\Url;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
@@ -29,7 +30,7 @@ class EzproxyLibbyCardSelection extends FormBase {
     $ezproxy_auth_uid = $session->get('ezproxy_auth_uid');
 
     if ((!$ezproxy_url || is_null($ezproxy_url) || $ezproxy_url == "")) {
-      return new RedirectResponse(\Drupal\Core\Url::fromRoute('user.page')->toString());
+      return new RedirectResponse(Url::fromRoute('user.page')->toString());
     }
 
     // if no form of auth, we can return to login
